@@ -174,7 +174,7 @@
         if (!lastSuccessfulEvent && ev.state==PingEventStateSent)
             earliestSentEvent = ev;
         
-        NSString* time = [NSString stringWithFormat:@"%1.3fs",[ev timeSinceSent]];
+        NSString* time = [NSString stringWithFormat:@"%1.3f ms",[ev timeSinceSent] * 1000];
         
         NSString* formatted = [NSString stringWithFormat:@"#%d: %@, %@",ev.sequenceNr,[ev stateName],time];
         //NSLog(@"%@",formatted);
@@ -264,10 +264,10 @@
         
     } else if ([lastSentEvent timeSinceSent] > [lastSuccessfulEvent timeSinceSent]+.1 && lastSentEvent.sequenceNr>lastSuccessfulEvent.sequenceNr) {
         titleColor = COLOR_SLOW;
-        titleText = [NSString stringWithFormat:@"%1.3fs",[lastSuccessfulEvent timeSinceSent]];
+        titleText = [NSString stringWithFormat:@"%1.3f ms",[lastSuccessfulEvent timeSinceSent] * 1000];
         
     } else if (lastSuccessfulEvent) {
-        titleText = [NSString stringWithFormat:@"%1.3fs",[lastSuccessfulEvent timeSinceSent]];
+        titleText = [NSString stringWithFormat:@"%1.3f ms",[lastSuccessfulEvent timeSinceSent] * 1000];
     }
     
     
@@ -356,7 +356,7 @@
                                 [self methodSignatureForSelector:@selector(sendPing)]];
     [invocation setTarget:self];
     [invocation setSelector:@selector(sendPing)];
-    [[NSRunLoop mainRunLoop] addTimer:[NSTimer timerWithTimeInterval:5 invocation:invocation repeats:YES] forMode:NSRunLoopCommonModes];
+    [[NSRunLoop mainRunLoop] addTimer:[NSTimer timerWithTimeInterval:1 invocation:invocation repeats:YES] forMode:NSRunLoopCommonModes];
     
     invocation = [NSInvocation invocationWithMethodSignature:
                                 [self methodSignatureForSelector:@selector(updateMenu)]];
@@ -412,7 +412,7 @@
 
 // Called whenever the SimplePing object tries and fails to send a ping packet.
 - (void)simplePing:(SimplePing *)myPinger didFailToSendPacket:(NSData *)packet error:(NSError *)error {
-    unsigned int seq = NSNotFound;
+    unsigned int seq = (unsigned int)NSNotFound;
     
     const struct ICMPHeader* head = [SimplePing icmpInPacket:packet];
     if (head) {
@@ -459,21 +459,21 @@
 - (void)simplePing:(SimplePing *)pinger didReceiveUnexpectedPacket:(NSData *)packet
 {
     return;
-    const ICMPHeader *  icmpPtr;
-    NSString* msg = @"";
-    icmpPtr = [SimplePing icmpInPacket:packet];
-    
-    if (icmpPtr->type==0)
-        return;
-    
-    if (icmpPtr != NULL) {
-        msg = [NSString stringWithFormat:@"#%u unexpected ICMP type=%u, code=%u, identifier=%u", (unsigned int) OSSwapBigToHostInt16(icmpPtr->sequenceNumber), (unsigned int) icmpPtr->type, (unsigned int) icmpPtr->code, (unsigned int) OSSwapBigToHostInt16(icmpPtr->identifier) ];
-    } else {
-        msg = [NSString stringWithFormat:@"unexpected packet size=%zu", (size_t) [packet length]];
-    }
-
-    //NSLog(@"%@",msg);
-    [self updateMenuWithError:@"(invalid response)"];
+//    const ICMPHeader *  icmpPtr;
+//    NSString* msg = @"";
+//    icmpPtr = [SimplePing icmpInPacket:packet];
+//
+//    if (icmpPtr->type==0)
+//        return;
+//
+//    if (icmpPtr != NULL) {
+//        msg = [NSString stringWithFormat:@"#%u unexpected ICMP type=%u, code=%u, identifier=%u", (unsigned int) OSSwapBigToHostInt16(icmpPtr->sequenceNumber), (unsigned int) icmpPtr->type, (unsigned int) icmpPtr->code, (unsigned int) OSSwapBigToHostInt16(icmpPtr->identifier) ];
+//    } else {
+//        msg = [NSString stringWithFormat:@"unexpected packet size=%zu", (size_t) [packet length]];
+//    }
+//
+//    //NSLog(@"%@",msg);
+//    [self updateMenuWithError:@"(invalid response)"];
 }
 
 
